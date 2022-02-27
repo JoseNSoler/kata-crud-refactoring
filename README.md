@@ -1,49 +1,46 @@
-# [Problema]
+# Java: Servidor CRUD Springboot Hibernate
 
-Pueden ver los siguientes videos para poder comprender la base del código fuente dentro de este repositorio. 
+<p align="center">
+<img src="https://www.sofka.com.co/wp-content/uploads/2021/02/sofkau-logo-horizontal.png">
+</p>
+<p align="center">
+  <img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white">
+</p>
+<p align="center">
+  <img src="https://img.shields.io/github/v/release/JoseNSoler/PracticaMVC?style=flat-square"
+</p>   
 
-https://www.youtube.com/watch?v=vqWvGgx_iXY&list=PL0IrPQPrkqoEUDXn1nsjzxSX2zflWtJW-
+## Descripcion General
 
-## KATA Full Stack
-
-En el siguiente proyecto se presenta algunos conceptos de Full Stack, trabajando con Spring Boot + ReactJS.
-
-### Caso de Uso
-
-Se tiene presente un formulario donde se registra unas tareas basadas en una lista por hacer. Esta lista se crea para poder tener una grupos de items donde se pueda gestionar un CRUD. Se tiene un diseño muy básico pero totalmente funcional. 
-
-#### Demo
-
-![alt text]( ./demo.gif "Demo funcional del ToDo")
- 
-### Instalación
-
-![alt text]( ./start.gif "Instalación y puesta en marcha")
-
-### Perspectiva Front-end
-Se tiene un archivo con toda la lógica, se presentan algunas malas prácticas en la codificación del mismo. Se debe refactorizar en donde se separe los componentes en archivos y se representen una mejor estructura. 
-
-Aplicar las mejores prácticas y buscar el mejor diseño para presentar los datos.
+Servidor CRUD implementado en Java - Springboot - hibernate para el manejo interactivo de una lista de tareas-objetos To Do,
+- Para servidores Linux, el codigo se ejecuta desde el archivo `mvnw`
+- Para servidores con distrubuciones Windows, el codigo se ejecuta desde el archivo `mvnw.cmd` desde una consola de comandos (cmd) o ventana PowerShell atravez del comando "./mvnw.cmd spring-boot:run"
 
 
-### Perspectiva Back-end
+Para el desarrollo (y posible recomendacion para implementacion rapida), se configuro un servidor MySql-Apache-PHPMyAdmin usando [USBWebServer](https://www.usbwebserver.net/downloads.html) :
 
-Dentro del back-end no se tiene una base de datos basada en servidor. Se debe aplicar un buen diseño de modelo entidad relación y aplicar una base de datos como servidor, ejemplo MySQL. Representar un objeto de trasporte de datos (DTO) en vez de usar la misma entidad para responder. 
+`http://localhost/phpmyadmin/` : PHPMyAdmin
 
-### Issues
+`http://localhost:3306/springboot` : MySql enlace y puertos *La base de datos por defecto se llama springboot*
 
-- Resolver el diseño gráfico
-- Separar bien los elementos gráficos como componentes, store, reducer y providers.
-- La base de datos debe esta en un servidor como MySQL.
-- Aplicar reglas para no guardar elementos vácios.
-- Validar carácteres y demás para guardar las entidades de los TO-DO.
-- Trabajar con un objeto de trasporte de datos o un objeto plano para representa los datos ante la API.
+`http://localhost:8080/{*operaciones*}` : servicio Java Springboot API CRUD, mas abajo se detallan los metodos permitidos
 
-## Reto
+## Manejo de Errores
 
-Hacer un fork en su propio namespace y presentar la solución más valida para ser discutida, argumentar los aspectos de mejora y aplicar algunas técnica de refactorización. Resolverlo de forma individual, aplicar los commit para cada paso que se realice en la refactorización. 
+Si el usuario realiza una peticion no permitida, ya sea por un error en el tipo de datos enviados, o requiriendo informacion no existente en la DB, el servidor respondera con un JSON:
 
-Realizar la siguiente representación donde se tiene TO-Do List agripado en listas.
+```JSON
+{
+    "message":  "__ERROR ToDo list con ID:20 no identificado en DB",
+    "httpStatus":  "NOT_FOUND",
+    "timeStamp":  "2022-02-21T04:27:37.423514Z"
+}
+```
+Describiendo:
+- El error en concreto que el usuario esta cometiendo
+- HTTP status personalizado de acuerdo al tipo de problema
+- Hora de respuesta del servidor
 
-![alt text]( ./todo-list-kata.gif "Demo funcional del ToDo List")
+<hr>
 
+## Operaciones permitidas
