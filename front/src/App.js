@@ -1,4 +1,6 @@
+// archivo principal
 import React, { useContext, useReducer, useEffect, useRef, useState, createContext } from 'react';
+import bootstrap from 'bootstrap';
 
 const HOST_API = "http://localhost:8080/api";
 const initialState = {
@@ -6,7 +8,7 @@ const initialState = {
 };
 const Store = createContext(initialState)
 
-
+//---------------------
 const Form = () => {
   const formRef = useRef(null);
   const { dispatch, state: { todo } } = useContext(Store);
@@ -23,7 +25,7 @@ const Form = () => {
     };
 
 
-    fetch(HOST_API + "/todo", {
+    fetch(HOST_API + "/1/todo", {
       method: "POST",
       body: JSON.stringify(request),
       headers: {
@@ -44,11 +46,12 @@ const Form = () => {
     const request = {
       name: state.name,
       id: item.id,
-      isCompleted: item.isCompleted
+      isCompleted: item.isCompleted,
+      groupListId: 1
     };
 
 
-    fetch(HOST_API + "/todo", {
+    fetch(HOST_API + "/1/todo", {
       method: "PUT",
       body: JSON.stringify(request),
       headers: {
@@ -62,6 +65,8 @@ const Form = () => {
         formRef.current.reset();
       });
   }
+
+  
 
   return <form ref={formRef}>
     <input
@@ -77,17 +82,19 @@ const Form = () => {
   </form>
 }
 
-
+//-----------------------------
 const List = () => {
   const { dispatch, state: { todo } } = useContext(Store);
   const currentList = todo.list;
 
   useEffect(() => {
-    fetch(HOST_API + "/todos")
+    console.log("estamos adentro");
+    fetch(HOST_API + "/1/todo")
       .then(response => response.json())
       .then((list) => {
         dispatch({ type: "update-list", list })
       })
+      console.log(todo.list)
   }, [dispatch]);
 
 
@@ -109,7 +116,7 @@ const List = () => {
       id: todo.id,
       completed: event.target.checked
     };
-    fetch(HOST_API + "/todo", {
+    fetch(HOST_API + "/1/todo", {
       method: "PUT",
       body: JSON.stringify(request),
       headers: {
@@ -135,7 +142,8 @@ const List = () => {
         </tr>
       </thead>
       <tbody>
-        {currentList.map((todo) => {
+        {
+        currentList.map((todo) => {
           return <tr key={todo.id} style={todo.completed ? decorationDone : {}}>
             <td>{todo.id}</td>
             <td>{todo.name}</td>
@@ -143,7 +151,8 @@ const List = () => {
             <td><button onClick={() => onDelete(todo.id)}>Eliminar</button></td>
             <td><button onClick={() => onEdit(todo)}>Editar</button></td>
           </tr>
-        })}
+        })
+        }
       </tbody>
     </table>
   </div>
@@ -199,8 +208,8 @@ const StoreProvider = ({ children }) => {
 
 function App() {
   return <StoreProvider>
-    <h3>To-Do List</h3>
-    <Form />
+    <h3 >To-Do List</h3>
+    <Form/>
     <List />
   </StoreProvider>
 }
