@@ -11,7 +11,7 @@ public class ToDo {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private Long id;
     
     @Column(nullable = false, length = 50)

@@ -47,19 +47,76 @@ public class ToDoService implements IToDoService {
                 .collect(Collectors.toSet());
     }
 
+    // GET ALL To Do by Listid /todo
+    public Set<ToDoObject> getAllToDoById() {
+        return toDoListRepository.findById(Long.parseLong("1")).orElseThrow(() -> new CustomErrorException(HttpStatus.NOT_FOUND,
+                String.format("_ERR: Role con ID=%s no fue posible encontrar en la Base de Datos", "1")))
+                .getToDos()
+                .stream()
+                .map(item -> new ToDoObject(item.getId(), item.getName(), item.isCompleted(), Long.parseLong("1")))
+                .collect(Collectors.toSet());
+    }
+
     // GET ListTODO by id
     @Override
     public Set<ToDoObject> getAllToDoListById(Long id) {
-        return toDoListRepository.findById(id).
-        orElseThrow(() -> new CustomErrorException(HttpStatus.NOT_FOUND,
-            String.format("_ERR: Role con ID=%s no fue posible encontrar en la Base de Datos", id)))
-        .getToDos()
-        .stream()
-        .map(item -> new ToDoObject(item.getId(), item.getName(), item.isCompleted(), id))
-        .collect(Collectors.toSet());
+        return toDoListRepository.findById(id).orElseThrow(() -> new CustomErrorException(HttpStatus.NOT_FOUND,
+                String.format("_ERR: Role con ID=%s no fue posible encontrar en la Base de Datos", id)))
+                .getToDos()
+                .stream()
+                .map(item -> new ToDoObject(item.getId(), item.getName(), item.isCompleted(), id))
+                .collect(Collectors.toSet());
+    }
+
+    // POST create new
+    @Override
+    public ToDoObject newToDo(ToDoObject toDoObject, Long id) {
+        System.out.println(toDoObject.toString());
+        Optional<ToDoList> OptoDoListUpdate = toDoListRepository.findById(id);
+
+        try {
+            if (OptoDoListUpdate.isEmpty())
+                throw new CustomErrorException(HttpStatus.NOT_FOUND,
+                        String.format(
+                                "_ERR: Lista To Do con ID=%s no fue posible encontrar y modificar en la Base de Datos",
+                                toDoObject.getId()));
+            else {
+                // Create new To do based on use req
+                ToDo newToDo = new ToDo();
+
+                // Convert ooptional to real object
+                ToDoList toDoListUpdate = OptoDoListUpdate.get();
+
+                // Get to Do set on current To Do list object
+                Set<ToDo> newList = toDoListUpdate.getToDos();
+                if (newList == null) {
+                    newList = new HashSet<ToDo>();
+                }
+                newToDo.setCompleted(toDoObject.isCompleted());
+                newToDo.setName(toDoObject.getName());
+                
+
+                newList.add(newToDo);
+
+                toDoListUpdate.setToDos(newList);
+
+                var listUpdated = toDoListRepository.save(toDoListUpdate).getId();
+                System.out.println(newToDo.getId() + "      ------");
+                toDoObject.setListId(Long.parseLong("1"));
+                toDoObject.setId(listUpdated);
+
+                return toDoObject;
+            }
+
+        } catch (Exception e) {
+            throw new CustomErrorException(
+                    HttpStatus.I_AM_A_TEAPOT,
+                    e.getMessage());
+        }
     }
 
     // Create new List ToDo tasks
+    @Override
     public ToDoListObject newListTodo(ToDoListObject toDoListModel) {
         try {
             ToDoList toDoListEntity = modelMapper.map(toDoListModel, ToDoList.class);
@@ -75,6 +132,7 @@ public class ToDoService implements IToDoService {
     }
 
     // Create Add ToDo actions to list with id
+    @Override
     public ToDoList addNewToDoByListId(Long listId, ToDoObject toDoObject) {
         Optional<ToDoList> OptoDoListUpdate = toDoListRepository.findById(listId);
 
@@ -114,6 +172,7 @@ public class ToDoService implements IToDoService {
     }
 
     // PUT object on id List
+    @Override
     public ToDoList modifyCurrToDoByListId(Long listId, ToDoObject toDoObject) {
         Optional<ToDoList> OptoDoListUpdate = toDoListRepository.findById(listId);
 
@@ -125,8 +184,8 @@ public class ToDoService implements IToDoService {
                                 listId));
             else {
                 ToDoList doListUpdate = OptoDoListUpdate.get();
-                for(var toDoItem : doListUpdate.getToDos()){
-                    if (toDoItem.getId().equals(toDoObject.getId())){
+                for (var toDoItem : doListUpdate.getToDos()) {
+                    if (toDoItem.getId().equals(toDoObject.getId())) {
                         System.out.println("asdassssssssssssssss");
                         toDoItem.setCompleted(toDoObject.isCompleted());
                         toDoItem.setName(toDoObject.getName());
@@ -138,7 +197,35 @@ public class ToDoService implements IToDoService {
 
                 return doListUpdate;
             }
-                   
+
+        } catch (Exception e) {
+            throw new CustomErrorException(
+                    HttpStatus.NOT_FOUND,
+                    e.getMessage(), e.getStackTrace());
+        }
+    }
+
+    // PUT only object
+    @Override
+    public ToDo modifyToDo(ToDoObject toDo) {
+        Optional<ToDo> OptToDo = toDoRepository.findById(toDo.getId());
+        try {
+            if (OptToDo.isEmpty())
+                throw new CustomErrorException(HttpStatus.NOT_FOUND,
+                        String.format(
+                                "_ERR: To Do con ID=%s no fue posible encontrar y modificar en la Base de Datos",
+                                toDo.getId()));
+            else {
+                ToDo updtToDo = OptToDo.get();
+                updtToDo.setName(toDo.getName());
+                updtToDo.setCompleted(toDo.isCompleted());
+                updtToDo.setId(toDo.getId());
+
+                toDoRepository.save(updtToDo);
+
+                return updtToDo;
+            }
+
         } catch (Exception e) {
             throw new CustomErrorException(
                     HttpStatus.NOT_FOUND,
@@ -170,7 +257,6 @@ public class ToDoService implements IToDoService {
         }
     }
 
-
     // DELETE To Do list
     @Override
     public Optional<ToDoObject> deleteToDo(Long id) {
@@ -182,7 +268,7 @@ public class ToDoService implements IToDoService {
                                 "_ERR: To Do lista con ID=%s no fue posible encontrar y eliminar en la Base de Datos",
                                 id));
             else {
-                
+
                 toDoRepository.deleteById(id);
                 ToDoObject toDoEntity = modelMapper.map(oToDo.get(), ToDoObject.class);
                 toDoEntity.setName("DELETED -->" + toDoEntity.getName());

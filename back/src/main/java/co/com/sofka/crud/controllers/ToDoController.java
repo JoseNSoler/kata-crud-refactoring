@@ -20,7 +20,7 @@ import co.com.sofka.crud.services.ToDoService;
 
 @RestController
 @RequestMapping(value = "/api")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class ToDoController {
 
     // Service component for to do list
@@ -40,12 +40,22 @@ public class ToDoController {
     }
 
     // GET current ToDo Lists by ID on DB
+    @CrossOrigin(origins = "*")
+    @GetMapping(value = "/{listId}/todo")
+    public Set<ToDoObject> getAllToDoById(){
+        return service.getAllToDoById();
+    }
+
+
+    // GET current ToDo Lists by ID on DB
+    @CrossOrigin(origins = "*")
     @GetMapping(value = "/{listId}/todolist")
     public Set<ToDoObject> getAllToDoListBtId(@PathVariable("listId") Long listId){
         return service.getAllToDoListById(listId);
     }
 
     // POST new List of to do's
+    @CrossOrigin(origins = "*")
     @PostMapping(value = "/todolist")
     public ToDoListObject newListToDo(@RequestBody @Valid ToDoListObject toDoList, BindingResult errors){
         if(errors.hasErrors()){
@@ -56,6 +66,7 @@ public class ToDoController {
     }
 
     // POST new ToDo on existing ToDo List on DB
+    @CrossOrigin(origins = "*")
     @PostMapping(value = "/{listId}/todolist")
     public ToDoList addNewToDoByListId(@PathVariable("listId") Long listId, @RequestBody @Valid ToDoObject toDoObject, BindingResult errors){
         if(errors.hasErrors()){
@@ -65,7 +76,28 @@ public class ToDoController {
         } else return service.addNewToDoByListId(listId, toDoObject);
     }
 
+    @PostMapping(value = "/{listId}/todo")
+    public ToDoObject newToDo(@PathVariable("listId") Long listId, @RequestBody @Valid ToDoObject toDoObject, BindingResult errors){
+        if(errors.hasErrors()){
+            // throw exception error if encounter on validation process
+            String errorCustom = CustomErrorException.getValidationMessage(errors.getFieldError());
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, errorCustom);
+        } else return service.newToDo(toDoObject, listId);
+    }
+
     // PUT modify element toDo from ID LisToDo
+    
+    @PutMapping(value = "/todo")
+    public ToDo modifyToDo(@RequestBody @Valid ToDoObject toDoObject, BindingResult errors){
+        if(errors.hasErrors()){
+            // throw exception error if encounter on validation process
+            String errorCustom = CustomErrorException.getValidationMessage(errors.getFieldError());
+            throw new CustomErrorException(HttpStatus.I_AM_A_TEAPOT, errorCustom);
+        } else return service.modifyToDo(toDoObject);
+    }
+
+
+    @CrossOrigin(origins = "*")
     @PutMapping(value = "/{listId}/todo")
     public ToDoList modifyCurrToDoByListId(@PathVariable("listId") Long listId, @RequestBody @Valid ToDoObject toDoObject, BindingResult errors){
         if(errors.hasErrors()){
@@ -77,12 +109,15 @@ public class ToDoController {
 
 
     // DELETE ToDo List from DB
+
     @DeleteMapping(value = "/{ListId}/todolist")
     public Optional<ToDoListObject> deleteToDoList(@PathVariable("ListId") Long id){
         return service.deleteToDoList(id);
     }
 
     // DELETE ToDo  from DB
+
+    @CrossOrigin(origins = "*")
     @DeleteMapping(value = "/{toDoId}/todo")
     public Optional<ToDoObject> deleteToDo(@PathVariable("toDoId") Long id){
         return service.deleteToDo(id);
