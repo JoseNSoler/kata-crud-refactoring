@@ -18,6 +18,8 @@
 
 ## Descripcion General
 
+*Video descriptivo del proyecto en realzacion y edicion, el link para el acceso a este mismo se encontrara disponible en el transcurso de los siguientes commits, porfavor referirse a la version mas actual de la rama*
+
 Para el desarrollo (y posible recomendacion para implementacion rapida), se configuro un servidor MySql-Apache-PHPMyAdmin usando [USBWebServer](https://www.usbwebserver.net/downloads.html). Quedando una mapeado de puertos de la siguiente manera:
 
 `http://localhost/phpmyadmin/` : PHPMyAdmin
